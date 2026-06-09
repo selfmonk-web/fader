@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fader</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Header -->
+    <header>
+      <div class="header-title">
+        <div class="logo-mark">
+          <span class="logo-bars">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </div>
+        <div class="title-text">
+          <span class="app-name">Fader</span>
+          <span class="app-sub">Volume Mixer</span>
+        </div>
+      </div>
+      <button id="btn-help" class="icon-btn" title="How to use (Alt+Shift+F to open)" aria-label="Help">?</button>
+    </header>
+
+    <!-- Master volume -->
+    <section class="master-section">
+      <div class="master-label-row">
+        <span class="section-label">MASTER</span>
+        <div class="master-controls">
+          <span id="master-value" class="value-badge">100%</span>
+          <button id="btn-mute-all" class="reset-btn" title="Mute all tabs">Mute all</button>
+          <button id="btn-reset-all" class="reset-btn" title="Reset all tabs to 100%">Reset all</button>
+        </div>
+      </div>
+      <div class="slider-row master-slider-row">
+        <input
+          type="range"
+          id="master-slider"
+          class="slider master-slider"
+          min="0"
+          max="200"
+          value="100"
+          step="1"
+          aria-label="Master volume"
+        />
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Tab list -->
+    <section id="tab-list-section">
+      <div class="section-label-row">
+        <span class="section-label">ACTIVE TABS</span>
+        <span id="tab-count" class="tab-count"></span>
+      </div>
+      <div id="tab-list"></div>
+    </section>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty-state hidden">
+      <div class="empty-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="28" width="6" height="12" rx="2" fill="currentColor" opacity="0.25"/>
+          <rect x="15" y="20" width="6" height="20" rx="2" fill="currentColor" opacity="0.45"/>
+          <rect x="24" y="12" width="6" height="28" rx="2" fill="currentColor" opacity="0.65"/>
+          <rect x="33" y="18" width="6" height="22" rx="2" fill="currentColor" opacity="0.45"/>
+        </svg>
+      </div>
+      <p class="empty-title">No audio playing</p>
+      <p class="empty-sub">Open YouTube, Spotify, or any<br>audio tab to get started.</p>
+      <p class="empty-shortcut">Tip: use <kbd>Alt+Shift+F</kbd> to open Fader anytime</p>
+    </div>
+
+    <!-- Help panel -->
+    <div id="help-panel" class="help-panel hidden">
+      <div class="help-header">
+        <span>How to use</span>
+        <button id="btn-help-close" class="icon-btn small">✕</button>
+      </div>
+      <ul class="help-list">
+        <li><strong>Slider</strong> — 0% = silent · 100% = original · 200% = boosted</li>
+        <li><strong>🔇 Mute</strong> — Silences a tab without losing your slider position</li>
+        <li><strong>Mute all</strong> — Silences every tab instantly (e.g. someone walks in)</li>
+        <li><strong>Master</strong> — Scales all tabs proportionally</li>
+        <li><strong>Settings</strong> — Saved per website automatically</li>
+        <li><strong>⚠ DRM</strong> — Netflix/Disney+ use copy protection; volume can't be changed</li>
+        <li><strong>⚡ Boost &gt;100%</strong> — May distort audio on some sources</li>
+      </ul>
+      <p class="help-shortcut">Keyboard shortcut: <kbd>Alt+Shift+F</kbd></p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <button id="btn-coffee" class="coffee-btn" title="Support Fader development">
+        ☕ Buy me a coffee
+      </button>
+      <span class="footer-version">Fader v1.0 · Made with ♥</span>
+    </footer>
+
+  </div>
+
+  <!-- Tab card template -->
+  <template id="tab-card-template">
+    <div class="tab-card" data-tab-id="">
+      <div class="tab-card-header">
+        <div class="tab-info">
+          <div class="status-dot" title="Connecting..."></div>
+          <img class="tab-favicon" src="" alt="" width="16" height="16" />
+          <div class="tab-text">
+            <span class="tab-title"></span>
+            <span class="tab-origin"></span>
+          </div>
+        </div>
+        <div class="tab-actions">
+          <span class="drm-badge hidden" title="This site uses DRM copy protection. Browser extensions cannot modify the audio pipeline for encrypted content (e.g. Netflix, Disney+).">⚠ DRM</span>
+          <button class="mute-btn icon-btn" title="Mute/unmute this tab" aria-label="Mute">
+            <svg class="icon-sound" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 3.5L5.5 7H2.5C2.22 7 2 7.22 2 7.5v5c0 .28.22.5.5.5H5.5l4.5 3.5V3.5z"/>
+              <path d="M14 7c.83.83 1.33 1.97 1.33 3.25S14.83 12.92 14 13.75" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <path d="M16.5 5c1.38 1.38 2.17 3.26 2.17 5.25S17.88 14.37 16.5 15.75" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            </svg>
+            <svg class="icon-muted hidden" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 3.5L5.5 7H2.5C2.22 7 2 7.22 2 7.5v5c0 .28.22.5.5.5H5.5l4.5 3.5V3.5z"/>
+              <line x1="13" y1="8" x2="18" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="18" y1="8" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="tab-card-slider">
+        <input type="range" class="slider tab-slider" min="0" max="200" value="100" step="1" aria-label="Tab volume" />
+        <span class="tab-value value-badge">100%</span>
+      </div>
+      <!-- Warning shown when slider goes above 150% -->
+      <div class="clip-warning hidden">⚡ Boosting above 150% may cause audio distortion</div>
+    </div>
+  </template>
+
+  <script src="popup.js"></script>
+</body>
+</html>
